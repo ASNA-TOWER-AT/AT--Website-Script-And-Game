@@ -7,6 +7,8 @@
 
 <style>
 
+/* ===== GLOBAL ===== */
+
 *{
 box-sizing:border-box;
 }
@@ -18,7 +20,12 @@ color:white;
 font-family:Arial, Helvetica, sans-serif;
 }
 
-/* HEADER */
+h2{
+color:#00ffc8;
+margin-top:0;
+}
+
+/* ===== HEADER ===== */
 
 header{
 display:flex;
@@ -29,16 +36,24 @@ background:#111;
 border-bottom:1px solid #00ffc8;
 }
 
+#logoBox{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
 #logo{
-font-size:28px;
-color:#00ffc8;
+font-size:24px;
 font-weight:bold;
+color:#00ffc8;
 }
 
 #version{
-font-size:14px;
-color:#00ffc8;
-margin-left:10px;
+font-size:12px;
+background:#00ffc8;
+color:black;
+padding:3px 8px;
+border-radius:20px;
 }
 
 #userBox{
@@ -55,16 +70,16 @@ background:#00ffc8;
 display:flex;
 align-items:center;
 justify-content:center;
-font-weight:bold;
 color:black;
+font-weight:bold;
 }
 
 #userEmail{
-font-size:13px;
+font-size:12px;
 opacity:0.8;
 }
 
-/* NAV */
+/* ===== NAV ===== */
 
 nav{
 display:flex;
@@ -75,7 +90,7 @@ flex-wrap:wrap;
 }
 
 nav button{
-padding:10px 20px;
+padding:10px 18px;
 background:#00ffc8;
 border:none;
 border-radius:6px;
@@ -87,7 +102,7 @@ nav button:hover{
 opacity:0.8;
 }
 
-/* PAGE */
+/* ===== PAGE ===== */
 
 .page{
 display:none;
@@ -98,50 +113,7 @@ padding:25px;
 display:block;
 }
 
-.grid{
-display:flex;
-flex-direction:column;
-gap:20px;
-}
-
-.card{
-background:#1b1b1b;
-padding:20px;
-border-radius:12px;
-box-shadow:0 0 15px #00ffc830;
-position:relative;
-}
-
-.card h3{
-margin:0 0 10px 0;
-color:#00ffc8;
-}
-
-.meta{
-font-size:12px;
-opacity:0.7;
-margin-bottom:10px;
-}
-
-.actions{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-top:10px;
-}
-
-button.action{
-padding:8px 15px;
-border:none;
-border-radius:5px;
-cursor:pointer;
-font-size:13px;
-}
-
-.playBtn{ background:#00ffc8; }
-.likeBtn{ background:#333; color:white; }
-.editBtn{ background:#555; color:white; }
-.deleteBtn{ background:#880000; color:white; }
+/* ===== FORM ===== */
 
 input,textarea,select{
 width:100%;
@@ -158,6 +130,18 @@ min-height:120px;
 resize:vertical;
 }
 
+button.primary{
+margin-top:15px;
+padding:10px;
+background:#00ffc8;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
+
+/* ===== TOAST ===== */
+
 #toast{
 position:fixed;
 bottom:20px;
@@ -170,27 +154,15 @@ display:none;
 font-weight:bold;
 }
 
-#loading{
-position:fixed;
-inset:0;
-background:#000000aa;
-display:none;
-align-items:center;
-justify-content:center;
-font-size:22px;
-color:#00ffc8;
-z-index:100;
-}
-
 </style>
 </head>
 
 <body>
 
 <header>
-<div>
-<span id="logo">AT™</span>
-<span id="version">V.1.0.0</span>
+<div id="logoBox">
+<div id="logo">AT™</div>
+<div id="version">V.1.0.0</div>
 </div>
 
 <div id="userBox">
@@ -212,9 +184,9 @@ z-index:100;
 <h2>Login / Register</h2>
 <input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
-<button onclick="register()">Register</button>
-<button onclick="login()">Login</button>
-<button onclick="logout()">Logout</button>
+<button class="primary" onclick="register()">Register</button>
+<button class="primary" onclick="login()">Login</button>
+<button class="primary" onclick="logout()">Logout</button>
 <p id="loginMsg"></p>
 </div>
 
@@ -222,14 +194,14 @@ z-index:100;
 
 <div id="games" class="page">
 <h2>Games</h2>
-<div id="gameList" class="grid"></div>
+<div id="gameList"></div>
 </div>
 
 <!-- SCRIPTS -->
 
 <div id="scripts" class="page">
 <h2>Scripts</h2>
-<div id="scriptList" class="grid"></div>
+<div id="scriptList"></div>
 </div>
 
 <!-- UPLOAD -->
@@ -242,24 +214,21 @@ z-index:100;
 <option value="script">Script</option>
 </select>
 
-<input id="itemName" placeholder="Nama (Wajib)">
-<input id="itemLink" placeholder="Link Game (Wajib untuk Game)">
-<textarea id="itemCode" placeholder="Script Code (Wajib untuk Script)"></textarea>
+<input id="itemName" placeholder="Nama">
+<input id="itemLink" placeholder="Link Game">
+<textarea id="itemCode" placeholder="Script Code"></textarea>
 <textarea id="itemDesc" placeholder="Deskripsi"></textarea>
 
-<button onclick="uploadItem()">Upload</button>
-
+<button class="primary">Upload</button>
 </div>
 
 <div id="toast"></div>
-<div id="loading">Loading...</div>
 
 <script type="module">
 
-/* FIREBASE */
+/* ===== FIREBASE ===== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-
 import {
 getAuth,
 createUserWithEmailAndPassword,
@@ -268,20 +237,7 @@ signOut,
 onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
 
-import {
-getFirestore,
-collection,
-addDoc,
-getDocs,
-doc,
-updateDoc,
-deleteDoc,
-increment,
-setDoc,
-getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
-
-/* CONFIG */
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
 
 const firebaseConfig = {
 apiKey: "AIzaSyBZPDqoF3pqPvVXVigbfBlolHAakohx_VY",
@@ -293,15 +249,94 @@ appId: "1:278571146405:web:bb7fbacf8ec3fb54fec14c",
 measurementId: "G-8PYQB40E2B"
 }
 
-/* INIT */
-
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
 
 let currentUser = null
 
-/* UI HELPERS */
+/* ===== PAGE SWITCH ===== */
+
+window.showPage = function(page){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"))
+document.getElementById(page).classList.add("active")
+}
+
+/* ===== AUTH ===== */
+
+window.register = async function(){
+let email = document.getElementById("email").value
+let pass = document.getElementById("password").value
+try{
+await createUserWithEmailAndPassword(auth,email,pass)
+loginMsg.innerText="Register berhasil"
+}catch(e){
+loginMsg.innerText=e.message
+}
+}
+
+window.login = async function(){
+let email = document.getElementById("email").value
+let pass = document.getElementById("password").value
+try{
+await signInWithEmailAndPassword(auth,email,pass)
+loginMsg.innerText="Login berhasil"
+}catch(e){
+loginMsg.innerText=e.message
+}
+}
+
+window.logout = function(){
+signOut(auth)
+}
+
+onAuthStateChanged(auth,user=>{
+currentUser=user
+if(user){
+userEmail.innerText=user.email
+userPhoto.innerText=user.email[0].toUpperCase()
+}else{
+userEmail.innerText="Not logged in"
+userPhoto.innerText="?"
+}
+})
+
+/* ===== FORM TOGGLE ===== */
+
+window.toggleUploadForm = function(){
+let type = uploadType.value
+itemLink.style.display = type==="game"?"block":"none"
+itemCode.style.display = type==="script"?"block":"none"
+}
+
+toggleUploadForm()
+/* ================= LOADING ================= */
+
+function showLoading(state){
+if(state){
+if(!document.getElementById("loading")){
+let div=document.createElement("div")
+div.id="loading"
+div.style.position="fixed"
+div.style.inset="0"
+div.style.background="#000000cc"
+div.style.display="flex"
+div.style.alignItems="center"
+div.style.justifyContent="center"
+div.style.color="#00ffc8"
+div.style.fontSize="22px"
+div.innerText="Loading..."
+document.body.appendChild(div)
+}else{
+document.getElementById("loading").style.display="flex"
+}
+}else{
+let l=document.getElementById("loading")
+if(l) l.style.display="none"
+}
+}
+
+/* ================= TOAST ================= */
 
 function showToast(msg){
 let t=document.getElementById("toast")
@@ -310,62 +345,411 @@ t.style.display="block"
 setTimeout(()=>{t.style.display="none"},2000)
 }
 
-function showLoading(state){
-document.getElementById("loading").style.display=state?"flex":"none"
+/* ================= UPLOAD SYSTEM ================= */
+
+window.uploadItem = async function(){
+
+if(!currentUser){
+showToast("Login dulu sebelum upload")
+return
 }
 
-/* PAGE */
+let type = document.getElementById("uploadType").value
+let name = document.getElementById("itemName").value.trim()
+let link = document.getElementById("itemLink").value.trim()
+let code = document.getElementById("itemCode").value.trim()
+let desc = document.getElementById("itemDesc").value.trim()
 
-window.showPage=function(page){
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"))
-document.getElementById(page).classList.add("active")
+/* ===== VALIDASI ===== */
+
+if(!name){
+showToast("Nama wajib diisi")
+return
 }
 
-/* AUTH */
+if(type==="game" && !link){
+showToast("Link game wajib diisi")
+return
+}
 
-window.register=async function(){
-let email=email.value
-let pass=password.value
+if(type==="script" && !code){
+showToast("Script code wajib diisi")
+return
+}
+
+/* ===== SIMPAN ===== */
+
 try{
-await createUserWithEmailAndPassword(auth,email,pass)
-loginMsg.innerText="Register berhasil"
-}catch(e){ loginMsg.innerText=e.message }
-}
 
-window.login=async function(){
-let email=document.getElementById("email").value
-let pass=document.getElementById("password").value
-try{
-await signInWithEmailAndPassword(auth,email,pass)
-loginMsg.innerText="Login berhasil"
-}catch(e){ loginMsg.innerText=e.message }
-}
+showLoading(true)
 
-window.logout=function(){
-signOut(auth)
-}
+await addDoc(collection(db,type+"s"),{
 
-onAuthStateChanged(auth,user=>{
-currentUser=user
-if(user){
-document.getElementById("userEmail").innerText=user.email
-document.getElementById("userPhoto").innerText=user.email[0].toUpperCase()
-}else{
-document.getElementById("userEmail").innerText="Not logged in"
-document.getElementById("userPhoto").innerText="?"
-}
+name:name,
+link: type==="game"?link:"",
+code: type==="script"?code:"",
+desc:desc,
+ownerUid: currentUser.uid,
+ownerEmail: currentUser.email,
+views:0,
+likes:0,
+createdAt: Date.now()
+
 })
 
-/* TOGGLE FORM */
+/* ===== RESET FORM ===== */
 
-window.toggleUploadForm=function(){
-let type=document.getElementById("uploadType").value
-document.getElementById("itemLink").style.display= type==="game"?"block":"none"
-document.getElementById("itemCode").style.display= type==="script"?"block":"none"
+document.getElementById("itemName").value=""
+document.getElementById("itemLink").value=""
+document.getElementById("itemCode").value=""
+document.getElementById("itemDesc").value=""
+
+showToast("Upload berhasil")
+
+loadItems()
+
+}catch(e){
+showToast("Error: "+e.message)
 }
 
-toggleUploadForm()
+showLoading(false)
 
+}
+
+/* ================= LOAD DATA ================= */
+
+async function loadItems(){
+
+document.getElementById("gameList").innerHTML=""
+document.getElementById("scriptList").innerHTML=""
+
+let gameSnap = await getDocs(collection(db,"games"))
+let scriptSnap = await getDocs(collection(db,"scripts"))
+
+gameSnap.forEach(doc=>{
+renderCard(doc,"game")
+})
+
+scriptSnap.forEach(doc=>{
+renderCard(doc,"script")
+})
+
+}
+
+/* ================= BASIC CARD RENDER ================= */
+
+function renderCard(docSnap,type){
+
+let data = docSnap.data()
+let id = docSnap.id
+
+let container = type==="game"
+? document.getElementById("gameList")
+: document.getElementById("scriptList")
+
+let div = document.createElement("div")
+div.style.background="#1a1a1a"
+div.style.padding="15px"
+div.style.borderRadius="10px"
+div.style.marginBottom="15px"
+
+div.innerHTML = `
+<h3 style="color:#00ffc8;margin:0">${data.name}</h3>
+<p style="font-size:13px;opacity:0.8">${data.desc||""}</p>
+<p style="font-size:12px;opacity:0.6">By: ${data.ownerEmail}</p>
+<p style="font-size:12px;">👁 ${data.views} | ❤️ ${data.likes}</p>
+`
+
+container.appendChild(div)
+
+}
+
+/* ================= AUTO LOAD ================= */
+
+loadItems()
+ /* ================= UPDATE RENDER CARD ================= */
+
+function renderCard(docSnap,type){
+
+let data = docSnap.data()
+let id = docSnap.id
+
+let container = type==="game"
+? document.getElementById("gameList")
+: document.getElementById("scriptList")
+
+let div = document.createElement("div")
+div.style.background="#1a1a1a"
+div.style.padding="15px"
+div.style.borderRadius="10px"
+div.style.marginBottom="15px"
+
+div.innerHTML = `
+<h3 style="color:#00ffc8;margin:0">${data.name}</h3>
+<p style="font-size:13px;opacity:0.8">${data.desc||""}</p>
+<p style="font-size:12px;opacity:0.6">By: ${data.ownerEmail}</p>
+<p style="font-size:12px;">👁 ${data.views} | ❤️ ${data.likes}</p>
+
+<div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+${type==="game" ? 
+`<button onclick="handlePlay('${id}')">Play</button>` 
+:
+`<button onclick="handleCopy('${id}')">Copy</button>`
+}
+
+<button onclick="handleLike('${id}','${type}')">Like</button>
+</div>
+`
+
+container.appendChild(div)
+
+}
+
+/* ================= VIEW SYSTEM ================= */
+
+window.handlePlay = async function(id){
+
+if(!currentUser){
+showToast("Login dulu")
+return
+}
+
+let viewRef = doc(db,"games",id,"views",currentUser.uid)
+let viewSnap = await getDoc(viewRef)
+
+if(!viewSnap.exists()){
+await setDoc(viewRef,{
+uid:currentUser.uid,
+createdAt:Date.now()
+})
+
+await updateDoc(doc(db,"games",id),{
+views: increment(1)
+})
+}
+
+let gameDoc = await getDoc(doc(db,"games",id))
+let link = gameDoc.data().link
+
+window.open(link,"_blank")
+loadItems()
+
+}
+
+/* ================= COPY SYSTEM ================= */
+
+window.handleCopy = async function(id){
+
+if(!currentUser){
+showToast("Login dulu")
+return
+}
+
+let scriptDoc = await getDoc(doc(db,"scripts",id))
+let data = scriptDoc.data()
+
+navigator.clipboard.writeText(data.code)
+showToast("Script disalin")
+
+let viewRef = doc(db,"scripts",id,"views",currentUser.uid)
+let viewSnap = await getDoc(viewRef)
+
+if(!viewSnap.exists()){
+await setDoc(viewRef,{
+uid:currentUser.uid,
+createdAt:Date.now()
+})
+
+await updateDoc(doc(db,"scripts",id),{
+views: increment(1)
+})
+}
+
+loadItems()
+
+}
+
+/* ================= LIKE SYSTEM ================= */
+
+window.handleLike = async function(id,type){
+
+if(!currentUser){
+showToast("Login dulu")
+return
+}
+
+let likeRef = doc(db,type+"s",id,"likes",currentUser.uid)
+let likeSnap = await getDoc(likeRef)
+
+if(!likeSnap.exists()){
+
+await setDoc(likeRef,{
+uid:currentUser.uid,
+createdAt:Date.now()
+})
+
+await updateDoc(doc(db,type+"s",id),{
+likes: increment(1)
+})
+
+showToast("Liked")
+
+}else{
+
+await deleteDoc(likeRef)
+
+await updateDoc(doc(db,type+"s",id),{
+likes: increment(-1)
+})
+
+showToast("Unliked")
+
+}
+/* ================= UPDATE RENDER CARD (OWNER BUTTONS) ================= */
+
+function renderCard(docSnap,type){
+
+let data = docSnap.data()
+let id = docSnap.id
+
+let container = type==="game"
+? document.getElementById("gameList")
+: document.getElementById("scriptList")
+
+let div = document.createElement("div")
+div.style.background="#1a1a1a"
+div.style.padding="15px"
+div.style.borderRadius="10px"
+div.style.marginBottom="15px"
+
+let ownerButtons = ""
+if(currentUser && currentUser.uid === data.ownerUid){
+ownerButtons = `
+<button onclick="handleEdit('${id}','${type}')">Edit</button>
+<button onclick="handleDelete('${id}','${type}')">Delete</button>
+`
+}
+
+div.innerHTML = `
+<h3 style="color:#00ffc8;margin:0">${data.name}</h3>
+<p style="font-size:13px;opacity:0.8">${data.desc||""}</p>
+<p style="font-size:12px;opacity:0.6">By: ${data.ownerEmail}</p>
+<p style="font-size:12px;">👁 ${data.views} | ❤️ ${data.likes}</p>
+
+<div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+${type==="game" ? 
+`<button onclick="handlePlay('${id}')">Play</button>` 
+:
+`<button onclick="handleCopy('${id}')">Copy</button>`
+}
+
+<button onclick="handleLike('${id}','${type}')">Like</button>
+${ownerButtons}
+</div>
+`
+
+container.appendChild(div)
+
+}
+
+/* ================= DELETE ================= */
+
+window.handleDelete = async function(id,type){
+
+if(!currentUser){
+showToast("Login dulu")
+return
+}
+
+let confirmDelete = confirm("Yakin mau hapus?")
+if(!confirmDelete) return
+
+await deleteDoc(doc(db,type+"s",id))
+
+showToast("Item dihapus")
+
+loadItems()
+
+}
+
+/* ================= EDIT ================= */
+
+window.handleEdit = async function(id,type){
+
+if(!currentUser){
+showToast("Login dulu")
+return
+}
+
+let docRef = doc(db,type+"s",id)
+let snap = await getDoc(docRef)
+let data = snap.data()
+
+let newName = prompt("Edit Nama:", data.name)
+if(newName===null) return
+
+let newDesc = prompt("Edit Deskripsi:", data.desc||"")
+
+let updateData = {
+name:newName,
+desc:newDesc
+}
+
+if(type==="game"){
+let newLink = prompt("Edit Link:", data.link||"")
+if(newLink!==null){
+updateData.link = newLink
+}
+}
+
+if(type==="script"){
+let newCode = prompt("Edit Script Code:", data.code||"")
+if(newCode!==null){
+updateData.code = newCode
+}
+}
+
+await updateDoc(docRef, updateData)
+
+showToast("Item diupdate")
+
+loadItems()
+
+}
+loadItems()
+
+} 
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+
+/* ================= REALTIME LISTENER ================= */
+
+function startRealtime(){
+
+// GAMES
+onSnapshot(collection(db,"games"), snapshot => {
+
+document.getElementById("gameList").innerHTML=""
+
+snapshot.forEach(docSnap=>{
+renderCard(docSnap,"game")
+})
+
+})
+
+// SCRIPTS
+onSnapshot(collection(db,"scripts"), snapshot => {
+
+document.getElementById("scriptList").innerHTML=""
+
+snapshot.forEach(docSnap=>{
+renderCard(docSnap,"script")
+})
+
+})
+
+}
+
+startRealtime()  
 </script>
 
 </body>
