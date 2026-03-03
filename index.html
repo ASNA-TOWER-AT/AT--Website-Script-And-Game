@@ -3,236 +3,310 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AT Script Hub V.1.0.1</title>
+<title>AT Script Hub V.1.0.2</title>
+
 <style>
-body{background:#0f0f0f;color:white;font-family:Arial;margin:0;}
-#logo{font-size:60px;text-align:center;color:#00ffc8;margin:20px;}
-nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
-nav button{padding:10px 20px;background:#00ffc8;border:none;border-radius:5px;cursor:pointer;}
-.page{display:none;padding:20px;}
-.active{display:block;}
-.grid{display:flex;flex-direction:column;gap:15px;}
-.card{background:#1c1c1c;padding:15px;border-radius:10px;box-shadow:0 0 10px #00ffc8;position:relative;}
-input,textarea,select{width:100%;padding:10px;margin-top:5px;background:#222;border:none;border-radius:5px;color:white;}
-button{margin-top:10px;}
-#userInfo{position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:5px;}
-#userInfo img{width:30px;height:30px;border-radius:50%;}
+body{
+  background:#0f0f0f;
+  color:white;
+  font-family:Arial;
+  margin:0;
+}
+#logo{
+  font-size:60px;
+  text-align:center;
+  color:#00ffc8;
+  margin:20px;
+}
+nav{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+nav button{
+  padding:10px 20px;
+  background:#00ffc8;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
+.page{
+  display:none;
+  padding:20px;
+}
+.active{
+  display:block;
+}
+.grid{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+.card{
+  background:#1c1c1c;
+  padding:15px;
+  border-radius:10px;
+  box-shadow:0 0 10px #00ffc8;
+}
+input,textarea,select{
+  width:100%;
+  padding:10px;
+  margin-top:5px;
+  background:#222;
+  border:none;
+  border-radius:5px;
+  color:white;
+}
+button{
+  margin-top:10px;
+}
+#userInfo{
+  position:fixed;
+  top:10px;
+  right:10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:14px;
+}
+#userInfo img{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+}
 </style>
 </head>
 <body>
 
-<div id="logo">AT™</div>
-<div id="userInfo" style="display:none;">
-  <img id="userPhoto" src="">
-  <span id="userEmail"></span>
-  <span>V.1.0.1</span>
+<div id="logo">AT™ Script Hub</div>
+
+<div id="userInfo" style="display:none">
+  <img id="userPhoto" src="" alt="Foto Email">
+  <span id="userEmail">email@example.com</span>
+  <span>V.1.0.0</span>
   <button onclick="logout()">Logout</button>
 </div>
 
 <nav>
-<button onclick="showPage('games')">Games</button>
-<button onclick="showPage('scripts')">Scripts</button>
-<button onclick="showPage('upload')">Upload</button>
-<button id="loginBtn" onclick="showPage('login')">Login</button>
+  <button onclick="showPage('games')">Games</button>
+  <button onclick="showPage('scripts')">Scripts</button>
+  <button onclick="showPage('upload')">Upload</button>
+  <button id="loginBtn" onclick="showPage('login')">Login</button>
 </nav>
 
 <!-- LOGIN -->
 <div id="login" class="page">
-<h2>Login / Register</h2>
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-<button onclick="register()">Register</button>
-<button onclick="login()">Login</button>
-<p id="loginMsg"></p>
+  <h2>Login / Register</h2>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="register()">Register</button>
+  <button onclick="login()">Login</button>
+  <p id="loginMsg"></p>
 </div>
 
 <!-- GAMES -->
-<div id="games" class="page">
-<h2>Games</h2>
-<div id="gameList" class="grid"></div>
+<div id="games" class="page active">
+  <h2>Games</h2>
+  <div id="gameList" class="grid"></div>
 </div>
 
 <!-- SCRIPTS -->
 <div id="scripts" class="page">
-<h2>Scripts</h2>
-<div id="scriptList" class="grid"></div>
+  <h2>Scripts</h2>
+  <div id="scriptList" class="grid"></div>
 </div>
 
 <!-- UPLOAD -->
 <div id="upload" class="page">
-<h2>Upload</h2>
-<select id="uploadType" onchange="updateUploadForm()">
-<option value="game">Game</option>
-<option value="script">Script</option>
-</select>
-<input id="itemName" placeholder="Nama">
-<input id="itemLink" placeholder="Link (hanya game)">
-<textarea id="itemCode" placeholder="Script Code (hanya script)"></textarea>
-<textarea id="itemDesc" placeholder="Deskripsi"></textarea>
-<button onclick="uploadItem()">Upload</button>
+  <h2>Upload</h2>
+  <select id="uploadType" onchange="updateUploadFields()">
+    <option value="game">Game</option>
+    <option value="script">Script</option>
+  </select>
+  <input id="itemName" placeholder="Nama" required>
+  <input id="itemLink" placeholder="Link (untuk game)" required>
+  <textarea id="itemCode" placeholder="Script Code (untuk script)"></textarea>
+  <textarea id="itemDesc" placeholder="Deskripsi (opsional)"></textarea>
+  <button onclick="uploadItem()">Upload</button>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, getDocs, doc, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* CONFIG */
 const firebaseConfig = {
-apiKey: "AIzaSyBZPDqoF3pqPvVXVigbfBlolHAakohx_VY",
-authDomain: "at-data-174bc.firebaseapp.com",
-projectId: "at-data-174bc",
-storageBucket: "at-data-174bc.firebasestorage.app",
-messagingSenderId: "278571146405",
-appId: "1:278571146405:web:bb7fbacf8ec3fb54fec14c",
-measurementId: "G-8PYQB40E2B"
+  apiKey: "AIzaSyBZPDqoF3pqPvVXVigbfBlolHAakohx_VY",
+  authDomain: "at-data-174bc.firebaseapp.com",
+  projectId: "at-data-174bc",
+  storageBucket: "at-data-174bc.firebasestorage.app",
+  messagingSenderId: "278571146405",
+  appId: "1:278571146405:web:bb7fbacf8ec3fb54fec14c",
+  measurementId: "G-8PYQB40E2B"
 };
 
+/* INIT */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
-let userGameViews = {};
-let userScriptViews = {};
+let viewedGames = new Set();
 
-function showPage(page){
+/* PAGE */
+window.showPage=function(page){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById(page).classList.add("active");
-}
+};
 
-async function register(){
-  let email=document.getElementById("email").value
-  let pass=document.getElementById("password").value
+/* AUTH */
+window.register = async function(){
+  let email = document.getElementById("email").value;
+  let pass = document.getElementById("password").value;
   try{
-    await createUserWithEmailAndPassword(auth,email,pass)
-    loginMsg.innerText="Register berhasil"
-  }catch(e){loginMsg.innerText=e.message}
-}
-
-async function login(){
-  let email=document.getElementById("email").value
-  let pass=document.getElementById("password").value
-  try{
-    await signInWithEmailAndPassword(auth,email,pass)
-    loginMsg.innerText="Login berhasil"
-  }catch(e){loginMsg.innerText=e.message}
-}
-
-function logout(){
-  signOut(auth)
-  document.getElementById("loginBtn").style.display="inline-block";
-  document.getElementById("userInfo").style.display="none";
-}
-
-onAuthStateChanged(auth,user=>{
-  currentUser=user
-  if(user){
-    document.getElementById("loginBtn").style.display="none";
-    document.getElementById("userInfo").style.display="flex";
-    document.getElementById("userEmail").innerText = user.email;
-    document.getElementById("userPhoto").src = `https://ui-avatars.com/api/?name=${user.email}&background=00ffc8&color=000000`;
-    loadItems();
+    await createUserWithEmailAndPassword(auth,email,pass);
+    loginMsg.innerText="Register berhasil";
+  } catch(e){
+    loginMsg.innerText=e.message;
   }
-})
+};
 
-function updateUploadForm(){
+window.login = async function(){
+  let email = document.getElementById("email").value;
+  let pass = document.getElementById("password").value;
+  try{
+    await signInWithEmailAndPassword(auth,email,pass);
+    loginMsg.innerText="Login berhasil";
+  } catch(e){
+    loginMsg.innerText=e.message;
+  }
+};
+
+window.logout = function(){
+  signOut(auth);
+};
+
+/* Update upload fields */
+window.updateUploadFields = function(){
+  const type = document.getElementById("uploadType").value;
+  if(type === 'game'){
+    document.getElementById("itemLink").style.display = 'block';
+    document.getElementById("itemCode").style.display = 'none';
+  } else {
+    document.getElementById("itemLink").style.display = 'block';
+    document.getElementById("itemCode").style.display = 'block';
+  }
+};
+
+/* UPLOAD */
+window.uploadItem=async function(){
+  if(!currentUser){
+    alert("Login dulu");
+    return;
+  }
   let type=document.getElementById("uploadType").value;
-  document.getElementById("itemLink").style.display = (type=="game") ? "block" : "none";
-  document.getElementById("itemCode").style.display = (type=="script") ? "block" : "none";
-}
+  let name=document.getElementById("itemName").value;
+  let link=document.getElementById("itemLink").value;
+  let code=document.getElementById("itemCode").value;
+  let desc=document.getElementById("itemDesc").value;
 
-async function uploadItem(){
-  if(!currentUser){alert("Login dulu"); return;}
-  let type=document.getElementById("uploadType").value;
-  let name=document.getElementById("itemName").value.trim();
-  let link=document.getElementById("itemLink").value.trim();
-  let code=document.getElementById("itemCode").value.trim();
-  let desc=document.getElementById("itemDesc").value.trim();
-
-  if(!name || (type=="game" && !link) || (type=="script" && !code)){alert("Harap isi semua field yang dibutuhkan"); return;}
+  if(!name || (type==='game' && !link) || (type==='script' && !code)){
+    alert("Lengkapi semua field yang diperlukan!");
+    return;
+  }
 
   await addDoc(collection(db,type+"s"),{
     name, link, code, desc, user:currentUser.email, views:0
   });
+
   loadItems();
-}
+};
 
+/* LOAD DATA */
 async function loadItems(){
-  const gameList=document.getElementById("gameList"); gameList.innerHTML="";
-  const scriptList=document.getElementById("scriptList"); scriptList.innerHTML="";
-
-  let gameSnap=await getDocs(collection(db,"games"));
-  gameSnap.forEach(doc=>{
-    let g=doc.data();
-    let card=document.createElement("div"); card.className="card";
+  const gameList=document.getElementById("gameList");
+  gameList.innerHTML="";
+  const gameSnap=await getDocs(collection(db,"games"));
+  gameSnap.forEach(docItem=>{
+    let g=docItem.data();
+    let card=document.createElement("div");
+    card.className="card";
     card.innerHTML=`
       <h3>${g.name}</h3>
-      <p>${g.desc || ""}</p>
-      <button onclick="playGame('${doc.id}','${g.link}')">Play</button>
-      <span>Views: ${g.views||0}</span>
-      ${currentUser && g.user===currentUser.email ? `<button onclick="editItem('games','${doc.id}')">Edit</button> <button onclick="deleteItem('games','${doc.id}')">Delete</button>` : ""}
+      <p>${g.desc || ''}</p>
+      <button onclick="playGame('${docItem.id}','${g.link}')">Play</button>
     `;
     gameList.appendChild(card);
   });
 
-  let scriptSnap=await getDocs(collection(db,"scripts"));
-  scriptSnap.forEach(doc=>{
-    let s=doc.data();
-    let card=document.createElement("div"); card.className="card";
+  const scriptList=document.getElementById("scriptList");
+  scriptList.innerHTML="";
+  const scriptSnap=await getDocs(collection(db,"scripts"));
+  scriptSnap.forEach(docItem=>{
+    let s=docItem.data();
+    let card=document.createElement("div");
+    card.className="card";
     card.innerHTML=`
       <h3>${s.name}</h3>
-      <p>${s.desc || ""}</p>
+      <p>${s.desc || ''}</p>
       <pre>${s.code}</pre>
-      <button onclick="copyScript('${s.code}','${doc.id}')">Copy</button>
-      <span>Views: ${s.views||0}</span>
-      ${currentUser && s.user===currentUser.email ? `<button onclick="editItem('scripts','${doc.id}')">Edit</button> <button onclick="deleteItem('scripts','${doc.id}')">Delete</button>` : ""}
+      <button onclick="copyScript('${s.code}')">Copy</button>
+      ${currentUser && currentUser.email===s.user?'<button onclick="editScript(\''+docItem.id+'\')">Edit</button>':''}
     `;
     scriptList.appendChild(card);
   });
 }
 
-async function playGame(id,link){
-  if(currentUser && !userGameViews[id]){
-    userGameViews[id]=true;
-    const ref = doc(db,"games",id);
-    await updateDoc(ref,{views:(await getDocs(collection(db,"games"))).docs.find(d=>d.id===id).data().views+1});
+/* PLAY / COPY */
+window.playGame = async function(id,link){
+  if(!viewedGames.has(id)){
+    const docRef = doc(db,"games",id);
+    const gSnap = await getDocs(collection(db,"games"));
+    let count = 1;
+    await updateDoc(docRef, {views: count});
+    viewedGames.add(id);
   }
   window.open(link);
-}
+};
 
-async function copyScript(code,id){
+window.copyScript = function(code){
   navigator.clipboard.writeText(code);
-  if(currentUser && !userScriptViews[id]){
-    userScriptViews[id]=true;
-    const ref = doc(db,"scripts",id);
-    await updateDoc(ref,{views:(await getDocs(collection(db,"scripts"))).docs.find(d=>d.id===id).data().views+1});
-  }
-  alert("Copied!");
-}
+  alert("Script copied!");
+};
 
-async function editItem(type,id){
-  const col = collection(db,type);
-  const docRef = doc(db,type,id);
-  const snap = await getDocs(col);
-  const data = snap.docs.find(d=>d.id===id).data();
-  let newName=prompt("Edit Name",data.name);
-  let newLink=type=="game"?prompt("Edit Link",data.link):data.link;
-  let newCode=type=="script"?prompt("Edit Code",data.code):data.code;
-  let newDesc=prompt("Edit Desc",data.desc||"");
-  if(newName) await updateDoc(docRef,{name:newName,link:newLink,code:newCode,desc:newDesc});
-  loadItems();
-}
-
-async function deleteItem(type,id){
-  if(confirm("Hapus item ini?")){
-    await deleteDoc(doc(db,type,id));
-    loadItems();
+/* AUTH STATE */
+onAuthStateChanged(auth,user=>{
+  currentUser=user;
+  if(user){
+    document.getElementById("login").style.display="none";
+    document.getElementById("loginBtn").style.display="none";
+    document.getElementById("userInfo").style.display="flex";
+    document.getElementById("userEmail").innerText=user.email;
+    document.getElementById("userPhoto").src=`https://www.gravatar.com/avatar/${md5(user.email.trim().toLowerCase())}?d=identicon`;
+  } else {
+    document.getElementById("login").style.display="block";
+    document.getElementById("loginBtn").style.display="inline-block";
+    document.getElementById("userInfo").style.display="none";
   }
-}
+});
 
 loadItems();
 
+/* Minimal MD5 for gravatar */
+function md5(str) {
+  return str.split('').reduce((hash,char)=> {
+    hash=((hash<<5)-hash)+char.charCodeAt(0);
+    return hash & hash;
+  },0);
+}
 </script>
-
 </body>
 </html>
