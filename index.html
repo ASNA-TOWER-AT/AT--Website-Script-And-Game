@@ -3,173 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AT Script Hub V.1.0.0</title>
+<title>AT Script Hub</title>
 
 <style>
-
-/* ===== GLOBAL ===== */
-
-*{
-box-sizing:border-box;
-}
-
 body{
-margin:0;
 background:#0f0f0f;
 color:white;
-font-family:Arial, Helvetica, sans-serif;
-}
-
-h2{
-color:#00ffc8;
-margin-top:0;
-}
-
-/* ===== HEADER ===== */
-
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:15px 25px;
-background:#111;
-border-bottom:1px solid #00ffc8;
-}
-
-#logoBox{
-display:flex;
-align-items:center;
-gap:10px;
+font-family:Arial;
+margin:0;
 }
 
 #logo{
-font-size:24px;
-font-weight:bold;
+font-size:60px;
+text-align:center;
 color:#00ffc8;
+margin:20px;
 }
-
-#version{
-font-size:12px;
-background:#00ffc8;
-color:black;
-padding:3px 8px;
-border-radius:20px;
-}
-
-#userBox{
-display:flex;
-align-items:center;
-gap:10px;
-}
-
-#userPhoto{
-width:35px;
-height:35px;
-border-radius:50%;
-background:#00ffc8;
-display:flex;
-align-items:center;
-justify-content:center;
-color:black;
-font-weight:bold;
-}
-
-#userEmail{
-font-size:12px;
-opacity:0.8;
-}
-
-/* ===== NAV ===== */
 
 nav{
 display:flex;
 justify-content:center;
-gap:15px;
-padding:15px;
+gap:10px;
 flex-wrap:wrap;
 }
 
 nav button{
-padding:10px 18px;
+padding:10px 20px;
 background:#00ffc8;
 border:none;
-border-radius:6px;
+border-radius:5px;
 cursor:pointer;
-font-weight:bold;
 }
-
-nav button:hover{
-opacity:0.8;
-}
-
-/* ===== PAGE ===== */
 
 .page{
 display:none;
-padding:25px;
+padding:20px;
 }
 
 .active{
 display:block;
 }
 
-/* ===== FORM ===== */
+.grid{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+.card{
+background:#1c1c1c;
+padding:15px;
+border-radius:10px;
+box-shadow:0 0 10px #00ffc8;
+}
 
 input,textarea,select{
 width:100%;
 padding:10px;
-margin-top:10px;
+margin-top:5px;
 background:#222;
 border:none;
-border-radius:6px;
+border-radius:5px;
 color:white;
 }
 
-textarea{
-min-height:120px;
-resize:vertical;
+button{
+margin-top:10px;
 }
-
-button.primary{
-margin-top:15px;
-padding:10px;
-background:#00ffc8;
-border:none;
-border-radius:6px;
-cursor:pointer;
-font-weight:bold;
-}
-
-/* ===== TOAST ===== */
-
-#toast{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#00ffc8;
-color:black;
-padding:12px 20px;
-border-radius:6px;
-display:none;
-font-weight:bold;
-}
-
 </style>
 </head>
 
 <body>
 
-<header>
-<div id="logoBox">
 <div id="logo">AT™</div>
-<div id="version">V.1.0.0</div>
-</div>
-
-<div id="userBox">
-<div id="userPhoto">?</div>
-<div id="userEmail">Not logged in</div>
-</div>
-</header>
 
 <nav>
 <button onclick="showPage('games')">Games</button>
@@ -178,57 +84,42 @@ font-weight:bold;
 <button onclick="showPage('login')">Login</button>
 </nav>
 
-<!-- LOGIN -->
-
 <div id="login" class="page active">
 <h2>Login / Register</h2>
 <input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
-<button class="primary" onclick="register()">Register</button>
-<button class="primary" onclick="login()">Login</button>
-<button class="primary" onclick="logout()">Logout</button>
+<button onclick="register()">Register</button>
+<button onclick="login()">Login</button>
+<button onclick="logout()">Logout</button>
 <p id="loginMsg"></p>
 </div>
 
-<!-- GAMES -->
-
 <div id="games" class="page">
 <h2>Games</h2>
-<div id="gameList"></div>
+<div id="gameList" class="grid"></div>
 </div>
-
-<!-- SCRIPTS -->
 
 <div id="scripts" class="page">
 <h2>Scripts</h2>
-<div id="scriptList"></div>
+<div id="scriptList" class="grid"></div>
 </div>
-
-<!-- UPLOAD -->
 
 <div id="upload" class="page">
 <h2>Upload</h2>
-
-<select id="uploadType" onchange="toggleUploadForm()">
+<select id="uploadType">
 <option value="game">Game</option>
 <option value="script">Script</option>
 </select>
-
 <input id="itemName" placeholder="Nama">
-<input id="itemLink" placeholder="Link Game">
+<input id="itemLink" placeholder="Link">
 <textarea id="itemCode" placeholder="Script Code"></textarea>
-<textarea id="itemDesc" placeholder="Deskripsi"></textarea>
-
-<button class="primary">Upload</button>
+<button onclick="uploadItem()">Upload</button>
 </div>
-
-<div id="toast"></div>
 
 <script type="module">
 
-/* ===== FIREBASE ===== */
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+
 import {
 getAuth,
 createUserWithEmailAndPassword,
@@ -237,7 +128,17 @@ signOut,
 onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
 
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs,
+doc,
+getDoc,
+setDoc,
+updateDoc,
+increment
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
 
 const firebaseConfig = {
 apiKey: "AIzaSyBZPDqoF3pqPvVXVigbfBlolHAakohx_VY",
@@ -255,18 +156,14 @@ const db = getFirestore(app)
 
 let currentUser = null
 
-/* ===== PAGE SWITCH ===== */
-
-window.showPage = function(page){
+window.showPage=function(page){
 document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"))
 document.getElementById(page).classList.add("active")
 }
 
-/* ===== AUTH ===== */
-
-window.register = async function(){
-let email = document.getElementById("email").value
-let pass = document.getElementById("password").value
+window.register=async function(){
+let email=document.getElementById("email").value
+let pass=document.getElementById("password").value
 try{
 await createUserWithEmailAndPassword(auth,email,pass)
 loginMsg.innerText="Register berhasil"
@@ -275,9 +172,9 @@ loginMsg.innerText=e.message
 }
 }
 
-window.login = async function(){
-let email = document.getElementById("email").value
-let pass = document.getElementById("password").value
+window.login=async function(){
+let email=document.getElementById("email").value
+let pass=document.getElementById("password").value
 try{
 await signInWithEmailAndPassword(auth,email,pass)
 loginMsg.innerText="Login berhasil"
@@ -286,241 +183,50 @@ loginMsg.innerText=e.message
 }
 }
 
-window.logout = function(){
+window.logout=function(){
 signOut(auth)
 }
 
 onAuthStateChanged(auth,user=>{
 currentUser=user
-if(user){
-userEmail.innerText=user.email
-userPhoto.innerText=user.email[0].toUpperCase()
-}else{
-userEmail.innerText="Not logged in"
-userPhoto.innerText="?"
-}
 })
 
-/* ===== FORM TOGGLE ===== */
-
-window.toggleUploadForm = function(){
-let type = uploadType.value
-itemLink.style.display = type==="game"?"block":"none"
-itemCode.style.display = type==="script"?"block":"none"
-}
-
-toggleUploadForm()
-/* ================= LOADING ================= */
-
-function showLoading(state){
-if(state){
-if(!document.getElementById("loading")){
-let div=document.createElement("div")
-div.id="loading"
-div.style.position="fixed"
-div.style.inset="0"
-div.style.background="#000000cc"
-div.style.display="flex"
-div.style.alignItems="center"
-div.style.justifyContent="center"
-div.style.color="#00ffc8"
-div.style.fontSize="22px"
-div.innerText="Loading..."
-document.body.appendChild(div)
-}else{
-document.getElementById("loading").style.display="flex"
-}
-}else{
-let l=document.getElementById("loading")
-if(l) l.style.display="none"
-}
-}
-
-/* ================= TOAST ================= */
-
-function showToast(msg){
-let t=document.getElementById("toast")
-t.innerText=msg
-t.style.display="block"
-setTimeout(()=>{t.style.display="none"},2000)
-}
-
-/* ================= UPLOAD SYSTEM ================= */
-
-window.uploadItem = async function(){
-
+window.uploadItem=async function(){
 if(!currentUser){
-showToast("Login dulu sebelum upload")
+alert("Login dulu")
 return
 }
 
-let type = document.getElementById("uploadType").value
-let name = document.getElementById("itemName").value.trim()
-let link = document.getElementById("itemLink").value.trim()
-let code = document.getElementById("itemCode").value.trim()
-let desc = document.getElementById("itemDesc").value.trim()
-
-/* ===== VALIDASI ===== */
-
-if(!name){
-showToast("Nama wajib diisi")
-return
-}
-
-if(type==="game" && !link){
-showToast("Link game wajib diisi")
-return
-}
-
-if(type==="script" && !code){
-showToast("Script code wajib diisi")
-return
-}
-
-/* ===== SIMPAN ===== */
-
-try{
-
-showLoading(true)
+let type=document.getElementById("uploadType").value
+let name=document.getElementById("itemName").value
+let link=document.getElementById("itemLink").value
+let code=document.getElementById("itemCode").value
 
 await addDoc(collection(db,type+"s"),{
-
-name:name,
-link: type==="game"?link:"",
-code: type==="script"?code:"",
-desc:desc,
-ownerUid: currentUser.uid,
-ownerEmail: currentUser.email,
-views:0,
-likes:0,
-createdAt: Date.now()
-
+name,
+link,
+code,
+user:currentUser.email,
+views:0
 })
-
-/* ===== RESET FORM ===== */
-
-document.getElementById("itemName").value=""
-document.getElementById("itemLink").value=""
-document.getElementById("itemCode").value=""
-document.getElementById("itemDesc").value=""
-
-showToast("Upload berhasil")
 
 loadItems()
-
-}catch(e){
-showToast("Error: "+e.message)
 }
 
-showLoading(false)
-
-}
-
-/* ================= LOAD DATA ================= */
-
-async function loadItems(){
-
-document.getElementById("gameList").innerHTML=""
-document.getElementById("scriptList").innerHTML=""
-
-let gameSnap = await getDocs(collection(db,"games"))
-let scriptSnap = await getDocs(collection(db,"scripts"))
-
-gameSnap.forEach(doc=>{
-renderCard(doc,"game")
-})
-
-scriptSnap.forEach(doc=>{
-renderCard(doc,"script")
-})
-
-}
-
-/* ================= BASIC CARD RENDER ================= */
-
-function renderCard(docSnap,type){
-
-let data = docSnap.data()
-let id = docSnap.id
-
-let container = type==="game"
-? document.getElementById("gameList")
-: document.getElementById("scriptList")
-
-let div = document.createElement("div")
-div.style.background="#1a1a1a"
-div.style.padding="15px"
-div.style.borderRadius="10px"
-div.style.marginBottom="15px"
-
-div.innerHTML = `
-<h3 style="color:#00ffc8;margin:0">${data.name}</h3>
-<p style="font-size:13px;opacity:0.8">${data.desc||""}</p>
-<p style="font-size:12px;opacity:0.6">By: ${data.ownerEmail}</p>
-<p style="font-size:12px;">👁 ${data.views} | ❤️ ${data.likes}</p>
-`
-
-container.appendChild(div)
-
-}
-
-/* ================= AUTO LOAD ================= */
-
-loadItems()
- /* ================= UPDATE RENDER CARD ================= */
-
-function renderCard(docSnap,type){
-
-let data = docSnap.data()
-let id = docSnap.id
-
-let container = type==="game"
-? document.getElementById("gameList")
-: document.getElementById("scriptList")
-
-let div = document.createElement("div")
-div.style.background="#1a1a1a"
-div.style.padding="15px"
-div.style.borderRadius="10px"
-div.style.marginBottom="15px"
-
-div.innerHTML = `
-<h3 style="color:#00ffc8;margin:0">${data.name}</h3>
-<p style="font-size:13px;opacity:0.8">${data.desc||""}</p>
-<p style="font-size:12px;opacity:0.6">By: ${data.ownerEmail}</p>
-<p style="font-size:12px;">👁 ${data.views} | ❤️ ${data.likes}</p>
-
-<div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
-${type==="game" ? 
-`<button onclick="handlePlay('${id}')">Play</button>` 
-:
-`<button onclick="handleCopy('${id}')">Copy</button>`
-}
-
-<button onclick="handleLike('${id}','${type}')">Like</button>
-</div>
-`
-
-container.appendChild(div)
-
-}
-
-/* ================= VIEW SYSTEM ================= */
-
-window.handlePlay = async function(id){
+window.playGame = async function(id,link){
 
 if(!currentUser){
-showToast("Login dulu")
+alert("Login dulu")
 return
 }
 
-let viewRef = doc(db,"games",id,"views",currentUser.uid)
+let viewRef = doc(db,"views",id+"_"+currentUser.uid)
 let viewSnap = await getDoc(viewRef)
 
 if(!viewSnap.exists()){
 await setDoc(viewRef,{
-uid:currentUser.uid,
-createdAt:Date.now()
+itemId:id,
+userId:currentUser.uid
 })
 
 await updateDoc(doc(db,"games",id),{
@@ -528,228 +234,52 @@ views: increment(1)
 })
 }
 
-let gameDoc = await getDoc(doc(db,"games",id))
-let link = gameDoc.data().link
-
 window.open(link,"_blank")
-loadItems()
-
 }
 
-/* ================= COPY SYSTEM ================= */
+async function loadItems(){
 
-window.handleCopy = async function(id){
+let gameList=document.getElementById("gameList")
+gameList.innerHTML=""
 
-if(!currentUser){
-showToast("Login dulu")
-return
-}
+let gameSnap=await getDocs(collection(db,"games"))
 
-let scriptDoc = await getDoc(doc(db,"scripts",id))
-let data = scriptDoc.data()
+gameSnap.forEach(d=>{
+let g=d.data()
+let id=d.id
 
-navigator.clipboard.writeText(data.code)
-showToast("Script disalin")
+if(!g.views){ g.views=0 }
 
-let viewRef = doc(db,"scripts",id,"views",currentUser.uid)
-let viewSnap = await getDoc(viewRef)
-
-if(!viewSnap.exists()){
-await setDoc(viewRef,{
-uid:currentUser.uid,
-createdAt:Date.now()
-})
-
-await updateDoc(doc(db,"scripts",id),{
-views: increment(1)
-})
-}
-
-loadItems()
-
-}
-
-/* ================= LIKE SYSTEM ================= */
-
-window.handleLike = async function(id,type){
-
-if(!currentUser){
-showToast("Login dulu")
-return
-}
-
-let likeRef = doc(db,type+"s",id,"likes",currentUser.uid)
-let likeSnap = await getDoc(likeRef)
-
-if(!likeSnap.exists()){
-
-await setDoc(likeRef,{
-uid:currentUser.uid,
-createdAt:Date.now()
-})
-
-await updateDoc(doc(db,type+"s",id),{
-likes: increment(1)
-})
-
-showToast("Liked")
-
-}else{
-
-await deleteDoc(likeRef)
-
-await updateDoc(doc(db,type+"s",id),{
-likes: increment(-1)
-})
-
-showToast("Unliked")
-
-}
-/* ================= UPDATE RENDER CARD (OWNER BUTTONS) ================= */
-
-function renderCard(docSnap,type){
-
-let data = docSnap.data()
-let id = docSnap.id
-
-let container = type==="game"
-? document.getElementById("gameList")
-: document.getElementById("scriptList")
-
-let div = document.createElement("div")
-div.style.background="#1a1a1a"
-div.style.padding="15px"
-div.style.borderRadius="10px"
-div.style.marginBottom="15px"
-
-let ownerButtons = ""
-if(currentUser && currentUser.uid === data.ownerUid){
-ownerButtons = `
-<button onclick="handleEdit('${id}','${type}')">Edit</button>
-<button onclick="handleDelete('${id}','${type}')">Delete</button>
+let card=document.createElement("div")
+card.className="card"
+card.innerHTML=`
+<h3>${g.name}</h3>
+<p>👁 ${g.views}</p>
+<button onclick="playGame('${id}','${g.link}')">Play</button>
 `
-}
+gameList.appendChild(card)
+})
 
-div.innerHTML = `
-<h3 style="color:#00ffc8;margin:0">${data.name}</h3>
-<p style="font-size:13px;opacity:0.8">${data.desc||""}</p>
-<p style="font-size:12px;opacity:0.6">By: ${data.ownerEmail}</p>
-<p style="font-size:12px;">👁 ${data.views} | ❤️ ${data.likes}</p>
+let scriptList=document.getElementById("scriptList")
+scriptList.innerHTML=""
 
-<div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
-${type==="game" ? 
-`<button onclick="handlePlay('${id}')">Play</button>` 
-:
-`<button onclick="handleCopy('${id}')">Copy</button>`
-}
+let scriptSnap=await getDocs(collection(db,"scripts"))
 
-<button onclick="handleLike('${id}','${type}')">Like</button>
-${ownerButtons}
-</div>
+scriptSnap.forEach(d=>{
+let s=d.data()
+let card=document.createElement("div")
+card.className="card"
+card.innerHTML=`
+<h3>${s.name}</h3>
+<pre>${s.code}</pre>
 `
-
-container.appendChild(div)
+scriptList.appendChild(card)
+})
 
 }
-
-/* ================= DELETE ================= */
-
-window.handleDelete = async function(id,type){
-
-if(!currentUser){
-showToast("Login dulu")
-return
-}
-
-let confirmDelete = confirm("Yakin mau hapus?")
-if(!confirmDelete) return
-
-await deleteDoc(doc(db,type+"s",id))
-
-showToast("Item dihapus")
 
 loadItems()
 
-}
-
-/* ================= EDIT ================= */
-
-window.handleEdit = async function(id,type){
-
-if(!currentUser){
-showToast("Login dulu")
-return
-}
-
-let docRef = doc(db,type+"s",id)
-let snap = await getDoc(docRef)
-let data = snap.data()
-
-let newName = prompt("Edit Nama:", data.name)
-if(newName===null) return
-
-let newDesc = prompt("Edit Deskripsi:", data.desc||"")
-
-let updateData = {
-name:newName,
-desc:newDesc
-}
-
-if(type==="game"){
-let newLink = prompt("Edit Link:", data.link||"")
-if(newLink!==null){
-updateData.link = newLink
-}
-}
-
-if(type==="script"){
-let newCode = prompt("Edit Script Code:", data.code||"")
-if(newCode!==null){
-updateData.code = newCode
-}
-}
-
-await updateDoc(docRef, updateData)
-
-showToast("Item diupdate")
-
-loadItems()
-
-}
-loadItems()
-
-} 
-import { onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
-
-/* ================= REALTIME LISTENER ================= */
-
-function startRealtime(){
-
-// GAMES
-onSnapshot(collection(db,"games"), snapshot => {
-
-document.getElementById("gameList").innerHTML=""
-
-snapshot.forEach(docSnap=>{
-renderCard(docSnap,"game")
-})
-
-})
-
-// SCRIPTS
-onSnapshot(collection(db,"scripts"), snapshot => {
-
-document.getElementById("scriptList").innerHTML=""
-
-snapshot.forEach(docSnap=>{
-renderCard(docSnap,"script")
-})
-
-})
-
-}
-
-startRealtime()  
 </script>
 
 </body>
