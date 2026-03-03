@@ -3,30 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AT Script Hub – FULL PRO MODE</title>
+<title>AT Script Hub V.1.0.0</title>
 
 <style>
-/* ==============================
-   BASE STYLES (from original)
-=============================== */
+
+*{
+box-sizing:border-box;
+}
+
 body{
+margin:0;
 background:#0f0f0f;
 color:white;
-font-family:Arial;
-margin:0;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+/* HEADER */
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 25px;
+background:#111;
+border-bottom:1px solid #00ffc8;
 }
 
 #logo{
-font-size:60px;
-text-align:center;
+font-size:28px;
 color:#00ffc8;
-margin:20px;
+font-weight:bold;
 }
+
+#version{
+font-size:14px;
+color:#00ffc8;
+margin-left:10px;
+}
+
+#userBox{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+#userPhoto{
+width:35px;
+height:35px;
+border-radius:50%;
+background:#00ffc8;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+color:black;
+}
+
+#userEmail{
+font-size:13px;
+opacity:0.8;
+}
+
+/* NAV */
 
 nav{
 display:flex;
 justify-content:center;
-gap:10px;
+gap:15px;
+padding:15px;
 flex-wrap:wrap;
 }
 
@@ -34,13 +78,20 @@ nav button{
 padding:10px 20px;
 background:#00ffc8;
 border:none;
-border-radius:5px;
+border-radius:6px;
 cursor:pointer;
+font-weight:bold;
 }
+
+nav button:hover{
+opacity:0.8;
+}
+
+/* PAGE */
 
 .page{
 display:none;
-padding:20px;
+padding:25px;
 }
 
 .active{
@@ -50,90 +101,114 @@ display:block;
 .grid{
 display:flex;
 flex-direction:column;
-gap:15px;
+gap:20px;
 }
 
 .card{
-background:#1c1c1c;
-padding:15px;
-border-radius:10px;
-box-shadow:0 0 10px #00ffc8;
+background:#1b1b1b;
+padding:20px;
+border-radius:12px;
+box-shadow:0 0 15px #00ffc830;
 position:relative;
 }
+
+.card h3{
+margin:0 0 10px 0;
+color:#00ffc8;
+}
+
+.meta{
+font-size:12px;
+opacity:0.7;
+margin-bottom:10px;
+}
+
+.actions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-top:10px;
+}
+
+button.action{
+padding:8px 15px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+font-size:13px;
+}
+
+.playBtn{ background:#00ffc8; }
+.likeBtn{ background:#333; color:white; }
+.editBtn{ background:#555; color:white; }
+.deleteBtn{ background:#880000; color:white; }
 
 input,textarea,select{
 width:100%;
 padding:10px;
-margin-top:5px;
+margin-top:10px;
 background:#222;
 border:none;
-border-radius:5px;
+border-radius:6px;
 color:white;
 }
 
-button{
-margin-top:10px;
-cursor:pointer;
+textarea{
+min-height:120px;
+resize:vertical;
 }
 
-.like-btn, .dislike-btn{
-margin-right:5px;
-cursor:pointer;
-}
-.comment-box{
-margin-top:10px;
-padding:10px;
-background:#222;
-border-radius:5px;
-}
-.comment-list{
-margin-top:5px;
-border-top:1px solid #00ffc8;
-padding-top:5px;
-}
-.copy-btn{
-position:absolute;
-top:10px;
-right:10px;
-padding:5px 10px;
+#toast{
+position:fixed;
+bottom:20px;
+right:20px;
 background:#00ffc8;
-border:none;
-border-radius:5px;
 color:black;
+padding:12px 20px;
+border-radius:6px;
+display:none;
 font-weight:bold;
 }
-.search-input{
-padding:10px;
-margin-bottom:15px;
-width:100%;
-border-radius:5px;
-border:none;
-background:#222;
-color:white;
+
+#loading{
+position:fixed;
+inset:0;
+background:#000000aa;
+display:none;
+align-items:center;
+justify-content:center;
+font-size:22px;
+color:#00ffc8;
+z-index:100;
 }
 
-/* ==============================
-   HIGHLIGHT TRENDING
-=============================== */
-.trending{
-border:2px solid #00ffc8;
-}
 </style>
 </head>
 
 <body>
 
-<div id="logo">AT™</div>
+<header>
+<div>
+<span id="logo">AT™</span>
+<span id="version">V.1.0.0</span>
+</div>
+
+<div id="userBox">
+<div id="userPhoto">?</div>
+<div id="userEmail">Not logged in</div>
+</div>
+</header>
 
 <nav>
 <button onclick="showPage('games')">Games</button>
 <button onclick="showPage('scripts')">Scripts</button>
 <button onclick="showPage('upload')">Upload</button>
-<button onclick="showPage('profile')">Profile</button>
+<button onclick="showPage('login')">Login</button>
 </nav>
 
-<!-- LOGIN (hidden by default) -->
-<div id="login" class="page">
+<!-- LOGIN -->
+
+<div id="login" class="page active">
 <h2>Login / Register</h2>
 <input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
@@ -144,46 +219,47 @@ border:2px solid #00ffc8;
 </div>
 
 <!-- GAMES -->
-<div id="games" class="page active">
+
+<div id="games" class="page">
 <h2>Games</h2>
-<input class="search-input" placeholder="Search Games..." oninput="filterItems('games', this.value)">
 <div id="gameList" class="grid"></div>
 </div>
 
 <!-- SCRIPTS -->
+
 <div id="scripts" class="page">
 <h2>Scripts</h2>
-<input class="search-input" placeholder="Search Scripts..." oninput="filterItems('scripts', this.value)">
 <div id="scriptList" class="grid"></div>
 </div>
 
 <!-- UPLOAD -->
+
 <div id="upload" class="page">
 <h2>Upload</h2>
-<p>Login dibutuhkan untuk upload</p>
-<select id="uploadType">
+
+<select id="uploadType" onchange="toggleUploadForm()">
 <option value="game">Game</option>
 <option value="script">Script</option>
 </select>
-<input id="itemName" placeholder="Nama">
-<input id="itemLink" placeholder="Link">
-<textarea id="itemCode" placeholder="Script Code"></textarea>
+
+<input id="itemName" placeholder="Nama (Wajib)">
+<input id="itemLink" placeholder="Link Game (Wajib untuk Game)">
+<textarea id="itemCode" placeholder="Script Code (Wajib untuk Script)"></textarea>
+<textarea id="itemDesc" placeholder="Deskripsi"></textarea>
+
 <button onclick="uploadItem()">Upload</button>
+
 </div>
 
-<!-- PROFILE -->
-<div id="profile" class="page">
-<h2>Profile</h2>
-<p id="profileEmail"></p>
-<div id="userUploads" class="grid"></div>
-</div>
+<div id="toast"></div>
+<div id="loading">Loading...</div>
 
 <script type="module">
 
-/* ==============================
-   FIREBASE INIT (original + pro)
-=============================== */
+/* FIREBASE */
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+
 import {
 getAuth,
 createUserWithEmailAndPassword,
@@ -191,6 +267,7 @@ signInWithEmailAndPassword,
 signOut,
 onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+
 import {
 getFirestore,
 collection,
@@ -199,12 +276,12 @@ getDocs,
 doc,
 updateDoc,
 deleteDoc,
-query,
-orderBy,
-where,
-onSnapshot,
-increment
+increment,
+setDoc,
+getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+
+/* CONFIG */
 
 const firebaseConfig = {
 apiKey: "AIzaSyBZPDqoF3pqPvVXVigbfBlolHAakohx_VY",
@@ -216,32 +293,43 @@ appId: "1:278571146405:web:bb7fbacf8ec3fb54fec14c",
 measurementId: "G-8PYQB40E2B"
 }
 
+/* INIT */
+
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
+
 let currentUser = null
 
-/* ==============================
-   PAGE NAVIGATION
-=============================== */
+/* UI HELPERS */
+
+function showToast(msg){
+let t=document.getElementById("toast")
+t.innerText=msg
+t.style.display="block"
+setTimeout(()=>{t.style.display="none"},2000)
+}
+
+function showLoading(state){
+document.getElementById("loading").style.display=state?"flex":"none"
+}
+
+/* PAGE */
+
 window.showPage=function(page){
 document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"))
 document.getElementById(page).classList.add("active")
-if(page==='profile') loadUserUploads()
 }
 
-/* ==============================
-   AUTH
-=============================== */
+/* AUTH */
+
 window.register=async function(){
-let email=document.getElementById("email").value
-let pass=document.getElementById("password").value
+let email=email.value
+let pass=password.value
 try{
 await createUserWithEmailAndPassword(auth,email,pass)
 loginMsg.innerText="Register berhasil"
-}catch(e){
-loginMsg.innerText=e.message
-}
+}catch(e){ loginMsg.innerText=e.message }
 }
 
 window.login=async function(){
@@ -250,9 +338,7 @@ let pass=document.getElementById("password").value
 try{
 await signInWithEmailAndPassword(auth,email,pass)
 loginMsg.innerText="Login berhasil"
-}catch(e){
-loginMsg.innerText=e.message
-}
+}catch(e){ loginMsg.innerText=e.message }
 }
 
 window.logout=function(){
@@ -261,177 +347,25 @@ signOut(auth)
 
 onAuthStateChanged(auth,user=>{
 currentUser=user
-if(user) profileEmail.innerText="Email: "+user.email
+if(user){
+document.getElementById("userEmail").innerText=user.email
+document.getElementById("userPhoto").innerText=user.email[0].toUpperCase()
+}else{
+document.getElementById("userEmail").innerText="Not logged in"
+document.getElementById("userPhoto").innerText="?"
+}
 })
 
-/* ==============================
-   UPLOAD
-=============================== */
-window.uploadItem=async function(){
-if(!currentUser){
-alert("Login dulu")
-showPage('login')
-return
-}
+/* TOGGLE FORM */
+
+window.toggleUploadForm=function(){
 let type=document.getElementById("uploadType").value
-let name=document.getElementById("itemName").value
-let link=document.getElementById("itemLink").value
-let code=document.getElementById("itemCode").value
-await addDoc(collection(db,type+"s"),{
-name,link,code,user:currentUser.email,likes:0,dislikes:0,views:0,created:Date.now()
-})
-loadItems()
+document.getElementById("itemLink").style.display= type==="game"?"block":"none"
+document.getElementById("itemCode").style.display= type==="script"?"block":"none"
 }
 
-/* ==============================
-   LOAD ITEMS (realtime)
-=============================== */
-async function loadItems(){
-const gameList = document.getElementById("gameList")
-const scriptList = document.getElementById("scriptList")
+toggleUploadForm()
 
-// GAMES
-onSnapshot(collection(db,"games"),snap=>{
-gameList.innerHTML=""
-snap.docs.forEach(doc=>{
-let g = doc.data()
-let card = document.createElement("div")
-card.className="card"
-if(g.likes>5) card.classList.add("trending")
-card.innerHTML=`
-<h3>${g.name}</h3>
-<button onclick="window.open('${g.link}')">Play</button>
-<span class="like-btn" onclick="vote('${doc.id}','games','like')">👍 ${g.likes}</span>
-<span class="dislike-btn" onclick="vote('${doc.id}','games','dislike')">👎 ${g.dislikes}</span>
-<span>Views: ${g.views || 0}</span>
-<div class="comment-box">
-<input placeholder="Comment..." onchange="addComment('${doc.id}','games',this.value);this.value=''">
-<div class="comment-list" id="comments-${doc.id}"></div>
-</div>
-`
-gameList.appendChild(card)
-loadComments(doc.id,'games')
-})
-})
-
-// SCRIPTS
-onSnapshot(collection(db,"scripts"),snap=>{
-scriptList.innerHTML=""
-snap.docs.forEach(doc=>{
-let s = doc.data()
-let card = document.createElement("div")
-card.className="card"
-if(s.likes>5) card.classList.add("trending")
-card.innerHTML=`
-<h3>${s.name}</h3>
-<pre>${s.code}</pre>
-<button class="copy-btn" onclick="copyCode('${s.code}')">COPY</button>
-<span class="like-btn" onclick="vote('${doc.id}','scripts','like')">👍 ${s.likes}</span>
-<span class="dislike-btn" onclick="vote('${doc.id}','scripts','dislike')">👎 ${s.dislikes}</span>
-<span>Views: ${s.views || 0}</span>
-<div class="comment-box">
-<input placeholder="Comment..." onchange="addComment('${doc.id}','scripts',this.value);this.value=''">
-<div class="comment-list" id="comments-${doc.id}"></div>
-</div>
-`
-scriptList.appendChild(card)
-loadComments(doc.id,'scripts')
-})
-})
-}
-
-/* ==============================
-   LIKE / DISLIKE
-=============================== */
-window.vote = async function(id,type,action){
-if(!currentUser) return alert("Login dulu")
-const ref = doc(db,type,id)
-if(action==='like') await updateDoc(ref,{likes:increment(1)})
-if(action==='dislike') await updateDoc(ref,{dislikes:increment(1)})
-}
-
-/* ==============================
-   COMMENTS
-=============================== */
-window.addComment=async function(id,type,text){
-if(!currentUser || !text) return
-await addDoc(collection(db,type+'/'+id+'/comments'),{
-user:currentUser.email,text,time:Date.now()
-})
-loadComments(id,type)
-}
-
-async function loadComments(id,type){
-const commentDiv = document.getElementById('comments-'+id)
-if(!commentDiv) return
-const snap = await getDocs(collection(db,type+'/'+id+'/comments'))
-commentDiv.innerHTML=""
-snap.forEach(doc=>{
-const c = doc.data()
-const el = document.createElement("div")
-el.innerText = `${c.user}: ${c.text}`
-commentDiv.appendChild(el)
-})
-}
-
-/* ==============================
-   COPY SCRIPT
-=============================== */
-window.copyCode=function(code){
-navigator.clipboard.writeText(code)
-alert("Code copied!")
-}
-
-/* ==============================
-   FILTER
-=============================== */
-window.filterItems=function(type,query){
-query = query.toLowerCase()
-const list = document.getElementById(type+'List')
-Array.from(list.children).forEach(c=>{
-const name = c.querySelector('h3')?.innerText.toLowerCase() || ''
-c.style.display = name.includes(query)?'block':'none'
-})
-}
-
-/* ==============================
-   PROFILE PAGE
-=============================== */
-async function loadUserUploads(){
-if(!currentUser) return
-const div = document.getElementById('userUploads')
-div.innerHTML=""
-const types = ['games','scripts']
-for(const type of types){
-const snap = await getDocs(query(collection(db,type),where('user','==',currentUser.email)))
-snap.forEach(doc=>{
-const item = doc.data()
-const card = document.createElement('div')
-card.className="card"
-card.innerHTML=`
-<h3>${item.name}</h3>
-<button onclick="editItem('${doc.id}','${type}')">Edit</button>
-<button onclick="deleteItem('${doc.id}','${type}')">Delete</button>
-`
-div.appendChild(card)
-})
-}
-}
-
-/* ==============================
-   EDIT / DELETE
-=============================== */
-window.editItem=async function(id,type){
-const newName = prompt("New Name?")
-if(!newName) return
-await updateDoc(doc(db,type,id),{name:newName})
-}
-
-window.deleteItem=async function(id,type){
-if(confirm("Delete?")) await deleteDoc(doc(db,type,id))
-}
-
-loadItems()
 </script>
 
 </body>
